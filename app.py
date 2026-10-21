@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 parser = argparse.ArgumentParser(description="Detect and decode QR codes with a PyTorch detector")
 parser.add_argument("image", help="Path to the image to scan")
-parser.add_argument("--model", default="best.pt", help="Path to the model weights (default: best.pt)")
+parser.add_argument("--model", required=True, help="Path to a Faster R-CNN state dict trained for this detector")
 args = parser.parse_args()
 from torchvision import transforms
 from pyzbar.pyzbar import decode as qr_decode
@@ -29,10 +29,9 @@ model = QRCodeDetector()
 # Load your state_dict
 state_dict = torch.load(args.model, map_location=torch.device('cpu'))
 
-# Filter out unnecessary keys
 filtered_state_dict = {k: v for k, v in state_dict.items() if k in model.state_dict()}
-
-# Load filtered state_dict
+if not filtered_state_dict:
+    raise SystemExit(f"No Faster R-CNN weights found in {args.model} - pass a state dict trained for this detector")
 model.load_state_dict(filtered_state_dict, strict=False)
 
 # Set the model to evaluation mode

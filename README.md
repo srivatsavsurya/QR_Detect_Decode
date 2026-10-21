@@ -38,7 +38,7 @@ Then detect and decode QR codes in an image:
 ```sh
 python3 decode.py Images/page-0001.png                 # YOLOv8
 python3 crop.py Images/page-0001.png                   # OpenCV, no model needed
-python3 app.py Images/page-0001.png --model best.pt    # PyTorch experiment
+python3 app.py Images/page-0001.png --model <faster-rcnn-weights.pt>   # PyTorch experiment; needs its own weights, best.pt is YOLO
 ```
 
 Each script also writes `cropped_qr_<n>.jpg` crops for inspection.
