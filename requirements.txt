@@ -1,0 +1,10 @@
+ultralytics
+opencv-python
+pyzbar
+numpy
+pdf2image
+Pillow
+torch
+torchvision
+pyboof
+tensorflow

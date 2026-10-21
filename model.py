@@ -1,3 +1,4 @@
+import argparse
 import cv2
 from pyzbar.pyzbar import decode
 import tensorflow as tf
@@ -49,13 +50,14 @@ def extract_qr_codes(predictions):
     
     return qr_codes
 
-# Example usage
 if __name__ == '__main__':
-    model_path = '/home/surya/Downloads/alfaTKG/qr-scanner/ML/best.pt'  # Replace with your model path
-    image_path = '/home/surya/Downloads/alfaTKG/qr-scanner/ML/1-14.png'  # Replace with your image path
-    
-    model = load_qr_detection_model(model_path)
-    qr_codes = detect_qr_codes_with_model(model, image_path)
+    parser = argparse.ArgumentParser(description="Experimental: detect QR codes with a TensorFlow SavedModel")
+    parser.add_argument("image", help="Path to the image to scan")
+    parser.add_argument("--model", required=True, help="Path to the TensorFlow SavedModel directory")
+    args = parser.parse_args()
+
+    model = load_qr_detection_model(args.model)
+    qr_codes = detect_qr_codes_with_model(model, args.image)
     
     # Output results as JSON
     json_output = json.dumps(qr_codes, indent=4)

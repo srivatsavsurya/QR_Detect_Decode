@@ -1,8 +1,13 @@
+import argparse
 import torch
 import torch.nn as nn
 import torchvision.models as models
 import cv2
 import numpy as np
+parser = argparse.ArgumentParser(description="Detect and decode QR codes with a PyTorch detector")
+parser.add_argument("image", help="Path to the image to scan")
+parser.add_argument("--model", default="best.pt", help="Path to the model weights (default: best.pt)")
+args = parser.parse_args()
 from torchvision import transforms
 from pyzbar.pyzbar import decode as qr_decode
 
@@ -22,22 +27,13 @@ import torch
 model = QRCodeDetector()
 
 # Load your state_dict
-state_dict = torch.load('/home/surya/Downloads/alfaTKG/qr-scanner/ML/best.pt', map_location=torch.device('cpu'))
+state_dict = torch.load(args.model, map_location=torch.device('cpu'))
 
 # Filter out unnecessary keys
 filtered_state_dict = {k: v for k, v in state_dict.items() if k in model.state_dict()}
 
 # Load filtered state_dict
 model.load_state_dict(filtered_state_dict, strict=False)
-
-
-# Instantiate the model
-model = QRCodeDetector()
-
-# Load the state dictionary
-model_path = "/home/surya/Downloads/alfaTKG/qr-scanner/ML/best.pt"
-state_dict = torch.load(model_path)
-model.load_state_dict(state_dict)
 
 # Set the model to evaluation mode
 model.eval()
@@ -106,6 +102,5 @@ def main(image_path):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-# Run the main function
-image_path = "/home/surya/Downloads/alfaTKG/qr-scanner/ML/1-14.png"
-main(image_path)
+if __name__ == "__main__":
+    main(args.image)
