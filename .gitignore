@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+PDFs/
+Images/
+cropped_qr_*.jpg

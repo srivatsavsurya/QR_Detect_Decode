@@ -1,79 +1,60 @@
-# QR Code Detection with YOLOv8 and OpenCV
+# QR Code Detection and Decoding
 
-This project uses YOLOv8 for detecting QR codes in images and OpenCV for image processing. The detected QR codes are then decoded using the `pyzbar` library, and the results are output in JSON format.
-
-## Introduction
-
-This project uses a YOLOv8 model to detect QR codes in images and OpenCV to preprocess the images. Detected QR codes are then decoded using the `pyzbar` library.
+Detects QR codes in document images and decodes them to JSON. The main script uses a **YOLOv8** model ([Ultralytics](https://github.com/ultralytics/ultralytics)) for detection and `pyzbar` for decoding; OpenCV handles image processing. Built for scanning QR codes on batches of converted PDF pages.
 
 ![QR_detect decode](https://github.com/srivatsavsurya/QR_Detect_Decode/assets/109732969/9cb8ed6b-0dcd-4d25-a4d1-7c75b312ac05)
 
+## Scripts
 
-## Features
+| Script | What it does |
+| --- | --- |
+| `decode.py` | **Main script.** YOLOv8 (`best.pt`, 22 MB, included) detects each QR code, `pyzbar` decodes the crop, results print as JSON. |
+| `crop.py` | Model-free alternative: finds QR-like contours with OpenCV thresholding and decodes them. |
+| `convert_pdf_to_image.py` | Turns every PDF in `./PDFs` into enhanced page images in `./Images`. |
+| `app.py` | Experiment: same pipeline with a PyTorch Faster R-CNN detector. |
+| `model.py` | Experiment: TensorFlow SavedModel detector. |
 
-- Detect QR codes in images using a YOLOv8 model.
-- Preprocess images using OpenCV.
-- Decode QR codes using `pyzbar`.
-- Output results in JSON format.
-
-## Installation
-
-### Prerequisites
-
-- Git
-- Python 3.6+
-
-### Clone the Repository
+## Setup
 
 ```sh
-git clone https://github.com/srivatsavsurya/qr-detect-decode.git
-cd qr-detect-decode
-```
-### Set Up Virtual Environment
-
-It's recommended to use a virtual environment to manage dependencies.
-```sh
+git clone https://github.com/srivatsavsurya/QR_Detect_Decode.git
+cd QR_Detect_Decode
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
-### Download the YOLOv8 Model
-Place the best.pt model file in the project directory. You can train your model using Roboflow.
 
-### Usage
+`pyzbar` needs the system `zbar` library (`apt install libzbar0` on Debian/Ubuntu), and `pdf2image` needs `poppler-utils`.
 
-#### if you have a bunch of pdf, create a folder ./Images and ./PDFs
-and run
+## Usage
+
+To scan a folder of PDFs, put them in `./PDFs` first:
+
 ```sh
 python3 convert_pdf_to_image.py
 ```
 
-#### Run the script with an image:
+Then detect and decode QR codes in an image:
 
-##### To use tf model and detect the QR
 ```sh
-python detect.py --image_path <path/to/your/image.jpg>
+python3 decode.py Images/page-0001.png                 # YOLOv8
+python3 crop.py Images/page-0001.png                   # OpenCV, no model needed
+python3 app.py Images/page-0001.png --model <faster-rcnn-weights.pt>   # PyTorch experiment; needs its own weights, best.pt is YOLO
 ```
 
-##### To use open-cv2
-```sh
-python crop.py --image_path <path/to/your/image.jpg>
-```
-
+Each script also writes `cropped_qr_<n>.jpg` crops for inspection.
 
 ## JSON Output Format
-The output is a JSON array containing objects with the following structure:
+
 ```json
 [
   {
-    "bounding_box": {
-      "x": <x-coordinate>,
-      "y": <y-coordinate>,
-      "width": <width>,
-      "height": <height>
-    },
-    "data": "<decoded QR code data>"
+    "data": "<decoded QR code data>",
+    "type": "QRCODE",
+    "rect": { "x": <x>, "y": <y>, "width": <w>, "height": <h> }
   }
 ]
 ```
 
 ## Contributing
+
 Contributions are welcome! Please open an issue or submit a pull request for any changes.

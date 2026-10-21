@@ -1,12 +1,10 @@
+import argparse
 import cv2
 from pyzbar.pyzbar import decode
 from ultralytics import YOLO
 import json
-import os
 
-yolo_model = YOLO('best.pt')
-
-def detect_qr_codes_in_image(image_path, margin=10):
+def detect_qr_codes_in_image(image_path, yolo_model, margin=10):
     img = cv2.imread(image_path)
     if img is None:
         raise FileNotFoundError(f"Image not found at path: {image_path}")
@@ -60,12 +58,16 @@ def detect_qr_codes_in_image(image_path, margin=10):
 
     return qr_codes
 
-# Example usage
 if __name__ == '__main__':
-    image_path = '2024-07-09006_page-0001.jpg'  # Replace with your image path
+    parser = argparse.ArgumentParser(description="Detect QR codes with YOLOv8 and decode them")
+    parser.add_argument("image", help="Path to the image to scan")
+    parser.add_argument("--model", default="best.pt", help="Path to YOLOv8 weights (default: best.pt)")
+    parser.add_argument("--margin", type=int, default=20, help="Pixels of margin around each detection")
+    args = parser.parse_args()
 
     try:
-        qr_codes = detect_qr_codes_in_image(image_path, margin=20)  # Adjust margin as needed
+        yolo_model = YOLO(args.model)
+        qr_codes = detect_qr_codes_in_image(args.image, yolo_model, margin=args.margin)
         json_output = json.dumps(qr_codes, indent=4)
         print(json_output)
     except Exception as e:

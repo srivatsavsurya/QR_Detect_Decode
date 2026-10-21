@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import numpy as np
 import pyboof as pb
@@ -61,12 +62,14 @@ def detect_and_decode_qr(image_path, margin=10):
 
     return qr_codes
 
-# Example usage
 if __name__ == '__main__':
-    image_path = '/home/surya/Downloads/alfaTKG/qr-scanner/ML/2024-07-09006_page-0001.jpg'  # Replace with your image path
+    parser = argparse.ArgumentParser(description="Detect QR-like contours with OpenCV and decode them")
+    parser.add_argument("image", help="Path to the image to scan")
+    parser.add_argument("--margin", type=int, default=20, help="Pixels of margin around each detection")
+    args = parser.parse_args()
 
     try:
-        qr_codes = detect_and_decode_qr(image_path, margin=20)  # Adjust margin as needed
+        qr_codes = detect_and_decode_qr(args.image, margin=args.margin)
         json_output = json.dumps(qr_codes, indent=4)
         print(json_output)
 
